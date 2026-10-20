@@ -19,7 +19,7 @@
   padding: 0 16px;
   border: 1.5px solid var(--neutral-border);
   border-radius: var(--radius-control);
-  background: var(--neutral-0);
+  background: var(--surface);
   transition: border-color 120ms ease;
 }
 

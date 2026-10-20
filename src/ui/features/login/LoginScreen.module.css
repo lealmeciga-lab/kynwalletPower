@@ -1,4 +1,4 @@
-/* FR-018: sin scroll horizontal desde 320px (research.md R10). */
+/* FR-019: sin scroll horizontal desde 320px; dos columnas desde 768px (research.md R6). */
 .screen {
   display: flex;
   flex-direction: column;
@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px 24px;
-  background: var(--neutral-0);
+  background: var(--surface);
 }
 
 .content {
@@ -26,7 +26,7 @@
   }
 }
 
-@media (min-width: 960px) {
+@media (min-width: 768px) {
   .screen {
     display: grid;
     grid-template-columns: 43% 1fr;

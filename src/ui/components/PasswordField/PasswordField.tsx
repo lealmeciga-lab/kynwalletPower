@@ -5,7 +5,7 @@ import styles from './PasswordField.module.css';
 
 export type PasswordFieldProps = Omit<TextFieldProps, 'type' | 'endAdornment'>;
 
-/** Campo de contraseña con control accesible de visibilidad (FR-013). */
+/** Campo de contraseña con control accesible de visibilidad (FR-014). */
 export function PasswordField(props: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
   return (

@@ -1,0 +1,24 @@
+/* FR-017: abajo y centrado, sin bloquear el formulario ni causar scroll horizontal desde 320px. */
+.region {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 10;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  margin: 0;
+  padding: 12px 20px;
+  border-radius: var(--radius-control);
+  background: var(--neutral-900);
+  color: var(--neutral-0);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(22, 24, 44, 0.24);
+}

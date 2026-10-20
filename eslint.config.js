@@ -22,6 +22,11 @@ export default tseslint.config(
       'no-console': 'error',
     },
   },
+  // FR-021: único adaptador autorizado a escribir en la consola.
+  {
+    files: ['src/infrastructure/ConsoleLoginAttemptLog.ts'],
+    rules: { 'no-console': 'off' },
+  },
   // Regla de dependencias de Clean Architecture (Constitución 3.2, 3.5)
   {
     files: ['src/domain/**'],

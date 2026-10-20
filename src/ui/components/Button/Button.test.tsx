@@ -41,7 +41,7 @@ describe('Button', () => {
     expect(onClick).toHaveBeenCalledOnce();
   });
 
-  it('FR-015: no tiene violaciones de accesibilidad', async () => {
+  it('FR-016: no tiene violaciones de accesibilidad', async () => {
     const { container } = render(<Button>Ok</Button>);
     await expectNoA11yViolations(container);
   });

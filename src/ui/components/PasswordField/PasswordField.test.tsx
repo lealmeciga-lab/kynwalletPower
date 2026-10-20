@@ -57,7 +57,7 @@ describe('PasswordField', () => {
     expect(input).toHaveAccessibleDescription('Ingresa tu contraseña');
   });
 
-  it('FR-015: no tiene violaciones de accesibilidad', async () => {
+  it('FR-016: no tiene violaciones de accesibilidad', async () => {
     render(<PasswordField label="Contraseña" value="" onChange={() => {}} />);
     await expectNoA11yViolations(document.body);
   });

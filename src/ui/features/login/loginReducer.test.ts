@@ -40,7 +40,7 @@ describe('loginReducer', () => {
     expect(next.values.email).toBe('a');
   });
 
-  it('US2-4: invalid-credentials → authError, conserva el correo y vacía la contraseña', () => {
+  it('US2-3: invalid-credentials → authError, conserva el correo y vacía la contraseña', () => {
     const submitting = loginReducer(filled, { type: 'submit' });
     const next = loginReducer(submitting, {
       type: 'result',
@@ -51,14 +51,21 @@ describe('loginReducer', () => {
     expect(next.values).toEqual({ email: 'ana@example.test', password: '' });
   });
 
-  it('FR-019: unavailable → authError unavailable', () => {
+  it('FR-006: result validation-error no cambia el estado (los errores ya se mostraron en submit)', () => {
+    const editing = loginReducer(initialLoginState, { type: 'submit' });
+    expect(loginReducer(editing, { type: 'result', result: { kind: 'validation-error' } })).toBe(
+      editing,
+    );
+  });
+
+  it('FR-020: unavailable → authError unavailable', () => {
     const submitting = loginReducer(filled, { type: 'submit' });
     const next = loginReducer(submitting, { type: 'result', result: { kind: 'unavailable' } });
     expect(next.status).toBe('authError');
     expect(next.authError).toBe('unavailable');
   });
 
-  it('US2-3: editar un campo en authError → editing sin mensaje', () => {
+  it('US2-4: editar un campo en authError → editing sin mensaje', () => {
     const failed: LoginState = { ...filled, status: 'authError', authError: 'invalid-credentials' };
     const next = loginReducer(failed, { type: 'change', field: 'password', value: 'x' });
     expect(next.status).toBe('editing');
@@ -93,15 +100,33 @@ describe('loginReducer', () => {
     expect(next.fieldErrors.email).toBeUndefined();
   });
 
-  it('FR-017: toggleRemember cambia rememberMe', () => {
+  it('FR-018: toggleRemember cambia rememberMe', () => {
     expect(
       loginReducer(initialLoginState, { type: 'toggleRemember', checked: true }).rememberMe,
     ).toBe(true);
   });
 
-  it('FR-016: showNotice guarda el aviso y submit lo limpia', () => {
+  it('FR-017: showNotice guarda el aviso con id 1 y submit lo limpia', () => {
     const noticed = loginReducer(filled, { type: 'showNotice', message: 'Aviso' });
-    expect(noticed.notice).toBe('Aviso');
+    expect(noticed.notice).toEqual({ message: 'Aviso', id: 1 });
     expect(loginReducer(noticed, { type: 'submit' }).notice).toBeNull();
+  });
+
+  it('US5-2: un nuevo showNotice reemplaza el aviso con un id nuevo', () => {
+    const first = loginReducer(filled, { type: 'showNotice', message: 'Aviso' });
+    const second = loginReducer(first, { type: 'showNotice', message: 'Aviso' });
+    expect(second.notice).toEqual({ message: 'Aviso', id: 2 });
+  });
+
+  it('US5-2: dismissNotice solo cierra el aviso con el mismo id', () => {
+    const first = loginReducer(filled, { type: 'showNotice', message: 'Aviso' });
+    const second = loginReducer(first, { type: 'showNotice', message: 'Aviso' });
+    expect(loginReducer(second, { type: 'dismissNotice', id: 1 })).toBe(second);
+    expect(loginReducer(second, { type: 'dismissNotice', id: 2 }).notice).toBeNull();
+  });
+
+  it('US1-5: logout limpia el aviso', () => {
+    const noticed = loginReducer(filled, { type: 'showNotice', message: 'Aviso' });
+    expect(loginReducer(noticed, { type: 'logout' }).notice).toBeNull();
   });
 });

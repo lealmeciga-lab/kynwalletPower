@@ -10,7 +10,7 @@ function Controlled() {
 }
 
 describe('Checkbox', () => {
-  it('US5-2: casilla con etiqueta que alterna su estado', async () => {
+  it('US5-3: casilla con etiqueta que alterna su estado', async () => {
     render(<Controlled />);
     const checkbox = screen.getByRole('checkbox', { name: 'Recordarme' });
     expect(checkbox).not.toBeChecked();
@@ -20,7 +20,7 @@ describe('Checkbox', () => {
     expect(checkbox).not.toBeChecked();
   });
 
-  it('FR-015: no tiene violaciones de accesibilidad', async () => {
+  it('FR-016: no tiene violaciones de accesibilidad', async () => {
     const { container } = render(<Controlled />);
     await expectNoA11yViolations(container);
   });

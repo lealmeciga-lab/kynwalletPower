@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createAuthStub } from '@/test/authStub';
 import { TEST_ACCOUNT } from '@/test/fixtures';
@@ -63,6 +63,14 @@ describe('LoginForm · US1 Iniciar sesión con credenciales válidas', () => {
     expect(await screen.findByRole('heading', { name: /Bienvenido/ })).toBeVisible();
   });
 
+  it('US1-4: Enter en el correo también envía el formulario', async () => {
+    const { user, stub, email, password } = setup();
+    await user.type(password, TEST_ACCOUNT.password);
+    await user.type(email, `${TEST_ACCOUNT.email}{Enter}`);
+    expect(stub.authenticate).toHaveBeenCalledOnce();
+    expect(await screen.findByRole('heading', { name: /Bienvenido/ })).toBeVisible();
+  });
+
   it('US1-5: "Cerrar sesión" vuelve al formulario con los campos vacíos', async () => {
     const { user, email, password, submit } = setup();
     await user.type(email, TEST_ACCOUNT.email);
@@ -95,7 +103,7 @@ describe('LoginForm · US2 Retroalimentación ante credenciales incorrectas', ()
     expect(await screen.findByRole('alert')).toHaveTextContent(/^Correo o contraseña incorrectos$/);
   });
 
-  it('US2-3: editar un campo oculta el error', async () => {
+  it('US2-4: editar un campo oculta el error', async () => {
     const { user, email, password, submit } = setup(invalid());
     await user.type(email, TEST_ACCOUNT.email);
     await user.type(password, 'otra-clave-99');
@@ -105,7 +113,7 @@ describe('LoginForm · US2 Retroalimentación ante credenciales incorrectas', ()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('US2-4: conserva el correo, vacía la contraseña y le da el foco', async () => {
+  it('US2-3: conserva el correo, vacía la contraseña y le da el foco', async () => {
     const { user, email, password, submit } = setup(invalid());
     await user.type(email, TEST_ACCOUNT.email);
     await user.type(password, 'otra-clave-99');
@@ -129,8 +137,15 @@ describe('LoginForm · US2 Retroalimentación ante credenciales incorrectas', ()
 });
 
 describe('LoginForm · US3 Validar los campos antes de enviar', () => {
-  it('US3-1: envío vacío → ambos mensajes, sin autenticar y foco en el correo', async () => {
-    const { stub, submit } = setup();
+  const rejected = () => createAuthStub({ kind: 'validation-error' });
+  const expectNotBusy = () => {
+    const button = screen.getByRole('button', { name: 'Iniciar sesión' });
+    expect(button).not.toHaveAttribute('aria-busy', 'true');
+    expect(button).toBeEnabled();
+  };
+
+  it('US3-1 / FR-006: envío vacío → ambos mensajes, sin carga, registrado y foco en el correo', async () => {
+    const { stub, submit } = setup(rejected());
     await submit();
     expect(screen.getByLabelText('Correo electrónico')).toHaveAccessibleDescription(
       'Ingresa tu correo electrónico',
@@ -138,7 +153,12 @@ describe('LoginForm · US3 Validar los campos antes de enviar', () => {
     expect(screen.getByLabelText('Contraseña')).toHaveAccessibleDescription(
       'Ingresa tu contraseña',
     );
-    expect(stub.authenticate).not.toHaveBeenCalled();
+    // FR-021: el intento pasa por el caso de uso, que lo registra sin comparar credenciales.
+    expect(stub.authenticate).toHaveBeenCalledOnce();
+    await expect(stub.authenticate.mock.results[0]?.value).resolves.toEqual({
+      kind: 'validation-error',
+    });
+    expectNotBusy();
     expect(screen.getByLabelText('Correo electrónico')).toHaveFocus();
   });
 
@@ -150,13 +170,14 @@ describe('LoginForm · US3 Validar los campos antes de enviar', () => {
     expect(email).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('US3-3: contraseña de 7 caracteres → mensaje de longitud, sin autenticar', async () => {
-    const { user, stub, email, password, submit } = setup();
+  it('US3-3 / FR-006: contraseña de 7 caracteres → mensaje de longitud, sin carga', async () => {
+    const { user, stub, email, password, submit } = setup(rejected());
     await user.type(email, TEST_ACCOUNT.email);
     await user.type(password, '1234567');
     await submit();
     expect(password).toHaveAccessibleDescription('La contraseña debe tener al menos 8 caracteres');
-    expect(stub.authenticate).not.toHaveBeenCalled();
+    expect(stub.authenticate).toHaveBeenCalledOnce();
+    expectNotBusy();
     expect(password).toHaveFocus();
   });
 
@@ -179,23 +200,51 @@ describe('LoginForm · US3 Validar los campos antes de enviar', () => {
 });
 
 describe('LoginForm · US5 Elementos del diseño fuera de alcance', () => {
+  const NOTICE = 'Función no disponible en esta demostración';
+  // Con temporizadores falsos se usa fireEvent (síncrono): userEvent espera con setTimeout.
+  const withFakeTimers = () => {
+    vi.useFakeTimers();
+    return setup();
+  };
+  const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms));
+
+  afterEach(() => vi.useRealTimers());
+
   it.each(['¿Olvidaste tu contraseña?', 'Google', 'Apple', 'Regístrate'])(
-    'US5-1: "%s" muestra el aviso y conserva los datos',
+    'US5-1: "%s" muestra el aviso 4 s y conserva los datos',
     async (name) => {
-      const { user, stub, email, password } = setup();
-      await user.type(email, TEST_ACCOUNT.email);
-      await user.type(password, TEST_ACCOUNT.password);
-      await user.click(screen.getByRole('button', { name }));
-      expect(screen.getByRole('status')).toHaveTextContent(
-        'Función no disponible en esta demostración',
-      );
+      const { stub, email, password } = withFakeTimers();
+      fireEvent.change(email, { target: { value: TEST_ACCOUNT.email } });
+      fireEvent.change(password, { target: { value: TEST_ACCOUNT.password } });
+      fireEvent.click(screen.getByRole('button', { name }));
+      expect(screen.getByRole('status')).toHaveTextContent(NOTICE);
+
+      await advance(3999);
+      expect(screen.getByRole('status')).toHaveTextContent(NOTICE);
+      await advance(1);
+      expect(screen.getByRole('status')).toBeEmptyDOMElement();
+
       expect(email).toHaveValue(TEST_ACCOUNT.email);
       expect(password).toHaveValue(TEST_ACCOUNT.password);
       expect(stub.authenticate).not.toHaveBeenCalled();
     },
   );
 
-  it('US5-2: "Recordarme" cambia de estado sin escribir en el almacenamiento', async () => {
+  it('US5-2: un segundo aviso deja un solo mensaje y reinicia los 4 s', async () => {
+    withFakeTimers();
+    fireEvent.click(screen.getByRole('button', { name: 'Google' }));
+    await advance(3000);
+    fireEvent.click(screen.getByRole('button', { name: 'Apple' }));
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+    expect(screen.getByRole('status')).toHaveTextContent(NOTICE);
+
+    await advance(3999);
+    expect(screen.getByRole('status')).toHaveTextContent(NOTICE);
+    await advance(1);
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+  });
+
+  it('US5-3: "Recordarme" cambia de estado sin escribir en el almacenamiento', async () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
     const { user } = setup();
     const checkbox = screen.getByRole('checkbox', { name: 'Recordarme' });
@@ -207,7 +256,7 @@ describe('LoginForm · US5 Elementos del diseño fuera de alcance', () => {
     setItem.mockRestore();
   });
 
-  it('FR-014: orden de tabulación según contracts/ui-login.md', async () => {
+  it('FR-015: orden de tabulación según contracts/ui-login.md', async () => {
     const { user } = setup();
     const expected = [
       screen.getByLabelText('Correo electrónico'),
@@ -226,15 +275,15 @@ describe('LoginForm · US5 Elementos del diseño fuera de alcance', () => {
     }
   });
 
-  it('el aviso desaparece al enviar el formulario', async () => {
-    const { user, submit } = setup();
+  it('FR-017: el aviso desaparece al enviar el formulario', async () => {
+    const { user, submit } = setup(createAuthStub({ kind: 'validation-error' }));
     await user.click(screen.getByRole('button', { name: 'Google' }));
     await submit();
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
   });
 });
 
-describe('LoginForm · seguridad (FR-012)', () => {
+describe('LoginForm · seguridad (FR-013)', () => {
   it('la contraseña no aparece en el DOM, la URL, la consola ni el almacenamiento', async () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
     const consoleSpies = (['log', 'info', 'warn', 'error', 'debug'] as const).map((method) =>

@@ -10,14 +10,14 @@ describe('WelcomeView', () => {
     expect(heading).toHaveFocus();
   });
 
-  it('FR-009a: "Cerrar sesión" invoca onLogout', async () => {
+  it('FR-010: "Cerrar sesión" invoca onLogout', async () => {
     const onLogout = vi.fn();
     render(<WelcomeView name="Ana" onLogout={onLogout} />);
     await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
     expect(onLogout).toHaveBeenCalledOnce();
   });
 
-  it('FR-015: no tiene violaciones de accesibilidad', async () => {
+  it('FR-016: no tiene violaciones de accesibilidad', async () => {
     const { container } = render(<WelcomeView name="Ana" onLogout={() => {}} />);
     await expectNoA11yViolations(container);
   });

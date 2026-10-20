@@ -8,6 +8,7 @@ import { Divider } from '@/ui/components/Divider/Divider';
 import { PasswordField } from '@/ui/components/PasswordField/PasswordField';
 import { SocialButton } from '@/ui/components/SocialButton/SocialButton';
 import { TextField } from '@/ui/components/TextField/TextField';
+import { Toast } from '@/ui/components/Toast/Toast';
 import { useLoginForm } from './useLoginForm';
 import { WelcomeView } from './WelcomeView';
 import styles from './LoginForm.module.css';
@@ -22,7 +23,7 @@ export function LoginForm({ authenticate }: LoginFormProps) {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
-  // US2-4: tras credenciales incorrectas, el foco vuelve a la contraseña.
+  // US2-3: tras credenciales incorrectas, el foco vuelve a la contraseña.
   useEffect(() => {
     if (state.authError === 'invalid-credentials') passwordRef.current?.focus();
   }, [state.authError]);
@@ -39,7 +40,7 @@ export function LoginForm({ authenticate }: LoginFormProps) {
     else if (errors.password) passwordRef.current?.focus();
   };
 
-  // FR-016: elementos del diseño fuera del alcance de la demostración.
+  // FR-017: elementos del diseño fuera del alcance de la demostración.
   const notAvailable = () => showNotice(MESSAGES.FEATURE_UNAVAILABLE);
 
   return (
@@ -82,7 +83,7 @@ export function LoginForm({ authenticate }: LoginFormProps) {
       </div>
 
       {state.authError && (
-        <Alert tone="error">
+        <Alert>
           {state.authError === 'invalid-credentials'
             ? MESSAGES.INVALID_CREDENTIALS
             : MESSAGES.UNAVAILABLE}
@@ -104,14 +105,14 @@ export function LoginForm({ authenticate }: LoginFormProps) {
         <SocialButton provider="Apple" onClick={notAvailable} />
       </div>
 
-      {state.notice && <Alert tone="info">{state.notice}</Alert>}
-
       <p className={styles.footer}>
         ¿No tienes cuenta?
         <Button variant="link" onClick={notAvailable}>
           Regístrate
         </Button>
       </p>
+
+      <Toast message={state.notice?.message ?? null} />
     </form>
   );
 }

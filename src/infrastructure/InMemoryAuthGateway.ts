@@ -6,7 +6,7 @@ const DEFAULT_DELAY_MS = 1000;
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-/** Autenticación simulada en memoria (contracts/auth-gateway.md, research.md R5). */
+/** Autenticación simulada en memoria (contracts/auth.md, research.md R5). */
 export class InMemoryAuthGateway implements AuthGateway {
   private readonly accounts: readonly DemoAccount[] | null;
   private readonly delayMs: number;
@@ -22,7 +22,7 @@ export class InMemoryAuthGateway implements AuthGateway {
       if (!this.accounts) return { kind: 'unavailable' };
       const email = normalizeEmail(credentials.email);
       const account = this.accounts.find((candidate) => normalizeEmail(candidate.email) === email);
-      // Correo inexistente y contraseña incorrecta producen el mismo resultado (FR-010).
+      // Correo inexistente y contraseña incorrecta producen el mismo resultado (FR-011).
       if (!account || account.password !== credentials.password) {
         return { kind: 'invalid-credentials' };
       }

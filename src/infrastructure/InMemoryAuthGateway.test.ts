@@ -3,7 +3,7 @@ import { InMemoryAuthGateway } from './InMemoryAuthGateway';
 
 const gateway = (accounts = [TEST_ACCOUNT]) => new InMemoryAuthGateway(accounts, { delayMs: 0 });
 
-describe('InMemoryAuthGateway (contracts/auth-gateway.md)', () => {
+describe('InMemoryAuthGateway (contracts/auth.md)', () => {
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -60,7 +60,7 @@ describe('InMemoryAuthGateway (contracts/auth-gateway.md)', () => {
     ).resolves.toEqual({ kind: 'unavailable' });
   });
 
-  it('C6: el resultado nunca contiene la contraseña', async () => {
+  it('FR-013: el resultado nunca contiene la contraseña', async () => {
     const result = await gateway().authenticate({
       email: TEST_ACCOUNT.email,
       password: TEST_ACCOUNT.password,

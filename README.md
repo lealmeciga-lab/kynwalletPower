@@ -1,11 +1,14 @@
 # KynWallet · Inicio de sesión (demo)
 
 Demostración funcional, solo del lado del cliente, de la pantalla de inicio de sesión de la
-billetera virtual KynWallet. Reproduce el diseño de Figma
-([01 · Login](https://www.figma.com/design/f7uDsv8sh6ZOtK2OitTqtg/Billetera-Virtual---Prototipos?node-id=2-2)),
-valida los campos y simula la autenticación contra cuentas ficticias, sin backend ni base de datos.
+billetera virtual KynWallet. Sigue el estilo del prototipo de Figma
+([Billetera Virtual · Prototipos](https://www.figma.com/design/f7uDsv8sh6Z0tK20itTqtg/Billetera-Virtual---Prototipos?node-id=2-2));
+como el archivo no es accesible, la referencia visual vigente es
+[`modelobilletera.png`](specs/002-login-billetera-virtual/modelobilletera.png). Valida los
+campos y simula la autenticación contra cuentas ficticias, sin backend ni base de datos.
 
-Especificación, plan y tareas: [`specs/001-login-billetera/`](specs/001-login-billetera/).
+Especificación, plan y tareas: [`specs/002-login-billetera-virtual/`](specs/002-login-billetera-virtual/)
+(reemplaza a `specs/001-login-billetera/`, que queda como histórico).
 
 ## Requisitos
 
@@ -30,6 +33,20 @@ VITE_DEMO_USERS=[{"email":"tu.correo@example.com","password":"minimo-8-caractere
 - ⚠️ Al ser una aplicación solo-cliente, el valor de `VITE_DEMO_USERS` queda incluido en el bundle
   compilado. Usa únicamente cuentas ficticias.
 - Si la variable falta o es inválida, la pantalla muestra "Servicio de acceso no disponible".
+- **Credenciales para probar la demo**: son las que definas en tu `.env.local`. La pantalla no las
+  muestra y no se publican en ningún archivo versionado; los valores de arriba son solo un
+  ejemplo (FR-012a).
+
+## Registro de intentos
+
+Cada envío del formulario deja una línea en la consola del navegador (FR-021):
+
+```text
+login_attempt { event: 'login_attempt', outcome: 'success', email: 's***@example.com', timestamp: '2026-10-19T15:30:00.000Z' }
+```
+
+`outcome` puede ser `success`, `invalid-credentials`, `validation-error` o `unexpected-error`.
+El correo va enmascarado (primer carácter y dominio) y la contraseña nunca se registra.
 
 ## Scripts
 
@@ -50,12 +67,12 @@ Clean Architecture ligera. Las dependencias apuntan hacia el dominio y ESLint lo
 
 ```text
 src/
-├── domain/          # Tipos, reglas de validación y textos. Sin React.
-├── application/     # Caso de uso `authenticate` y puerto `AuthGateway`
-├── infrastructure/  # `InMemoryAuthGateway` (simulación, 1 s) y `loadDemoAccounts`
+├── domain/          # Tipos, validación, `maskEmail` y textos. Sin React.
+├── application/     # Caso de uso `authenticate` y puertos `AuthGateway` y `LoginAttemptLog`
+├── infrastructure/  # `InMemoryAuthGateway` (simulación, 1 s), `loadDemoAccounts` y `ConsoleLoginAttemptLog`
 ├── ui/
-│   ├── styles/      # Tokens de Figma (`tokens.css`) y estilos globales
-│   ├── components/  # Button, TextField, PasswordField, Checkbox, SocialButton, Divider, Alert
+│   ├── styles/      # Tokens de diseño (`tokens.css`) y estilos globales
+│   ├── components/  # Button, TextField, PasswordField, Checkbox, SocialButton, Divider, Alert, Toast
 │   ├── layout/      # BrandPanel
 │   └── features/login/  # LoginScreen, LoginForm, WelcomeView, reducer y hook
 ├── App.tsx
@@ -67,11 +84,15 @@ requisito que verifica (por ejemplo, `US2-1`, `FR-012`) para mantener la trazabi
 
 ## Notas de diseño
 
-- **Contraste (pendiente de aprobación de diseño):** varios colores de Figma no alcanzan
-  WCAG 2.1 AA (botón 2.83:1, enlaces 3.56:1, textos secundarios 3.28:1, bordes 1.40:1). Se
-  usan variantes más oscuras del mismo tono (`--brand-700`, `--neutral-600`, `--neutral-border`
-  en `src/ui/styles/tokens.css`). Detalle en `specs/001-login-billetera/research.md` (R3).
+- **Colores**: el degradado, el naranja de marca y el fondo `#fafaf7` se midieron en la imagen
+  de referencia. El botón, los enlaces, los textos secundarios y los bordes usan variantes más
+  oscuras del mismo tono para cumplir WCAG 2.1 AA (`--brand-700`, `--neutral-600`,
+  `--neutral-border` en `src/ui/styles/tokens.css`). Detalle en
+  `specs/002-login-billetera-virtual/research.md` (R7).
+- **Pendiente de aprobación de diseño (Constitución 8.6)**: esos colores derivados y el contraste
+  del logo, el subtítulo y la tarjeta del panel de marca, que todavía no cumplen AA
+  (`tasks.md`, T041).
 - Los iconos de Google, Apple y del control de visibilidad son los marcadores de posición del
   diseño de Figma.
 - Fuera de alcance: recuperar contraseña, registro, acceso con Google/Apple, persistencia de
-  "Recordarme" y bloqueo por intentos fallidos. Al activarlos se muestra un aviso.
+  "Recordarme" y bloqueo por intentos fallidos. Al activarlos se muestra un aviso flotante de 4 s.

@@ -12,7 +12,7 @@
   margin: 0;
   border: 1.5px solid var(--neutral-border);
   border-radius: var(--radius-checkbox);
-  background: var(--neutral-0);
+  background: var(--surface);
   appearance: none;
   cursor: pointer;
 }

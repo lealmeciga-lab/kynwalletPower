@@ -35,7 +35,7 @@
 .secondary {
   height: var(--social-height);
   border: 1.5px solid var(--neutral-border);
-  background: var(--neutral-0);
+  background: var(--surface);
   color: var(--neutral-900);
   font-size: 15px;
 }

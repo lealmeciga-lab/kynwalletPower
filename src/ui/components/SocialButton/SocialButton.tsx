@@ -6,7 +6,7 @@ type SocialButtonProps = {
   onClick: () => void;
 };
 
-/** Botón de proveedor externo. El icono es el marcador de posición del diseño (research.md R11). */
+/** Botón de proveedor externo. El icono es el marcador de posición del diseño (specs/001-login-billetera/research.md R11). */
 export function SocialButton({ provider, onClick }: SocialButtonProps) {
   return (
     <Button variant="secondary" onClick={onClick}>

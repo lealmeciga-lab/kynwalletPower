@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-14
 
-**Status**: Draft
+**Status**: Superseded — reemplazada por `specs/002-login-billetera-virtual/spec.md` (2026-10-19)
 
 **Input**: User description: "Necesito construir una pantalla web de inicio de sesión para una
 billetera virtual, con el objetivo de permitir que los usuarios accedan a la aplicación de manera

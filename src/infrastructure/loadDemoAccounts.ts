@@ -18,7 +18,7 @@ function toAccount(value: unknown): DemoAccount | null {
 
 /**
  * Lee las cuentas de demostración de la configuración externa (VITE_DEMO_USERS).
- * Devuelve null si la configuración falta o es inválida (contracts/auth-gateway.md).
+ * Devuelve null si la configuración falta o es inválida (contracts/auth.md).
  */
 export function loadDemoAccounts(raw: string | undefined): DemoAccount[] | null {
   if (!raw) return null;

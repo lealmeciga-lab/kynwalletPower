@@ -13,7 +13,7 @@ describe('SocialButton', () => {
     expect(onClick).toHaveBeenCalledOnce();
   });
 
-  it('FR-015: no tiene violaciones de accesibilidad', async () => {
+  it('FR-016: no tiene violaciones de accesibilidad', async () => {
     const { container } = render(<SocialButton provider="Apple" onClick={() => {}} />);
     await expectNoA11yViolations(container);
   });

@@ -1,4 +1,4 @@
-/* Móvil primero: por debajo de 960px solo se muestra el logo (research.md R10). */
+/* FR-019, móvil primero: por debajo de 768px solo se muestra el logo (research.md R6). */
 .panel {
   display: flex;
   align-items: center;
@@ -28,7 +28,7 @@
   display: none;
 }
 
-@media (min-width: 960px) {
+@media (min-width: 768px) {
   .panel {
     flex-direction: column;
     align-items: flex-start;

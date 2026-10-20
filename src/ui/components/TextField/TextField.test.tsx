@@ -63,14 +63,14 @@ describe('TextField', () => {
     expect(screen.getByLabelText('Correo')).not.toHaveAttribute('aria-invalid');
   });
 
-  it('FR-015: con error no tiene violaciones de accesibilidad', async () => {
+  it('FR-016: con error no tiene violaciones de accesibilidad', async () => {
     const { container } = render(
       <TextField label="Correo" value="" onChange={() => {}} error="Requerido" />,
     );
     await expectNoA11yViolations(container);
   });
 
-  it('FR-015: no tiene violaciones de accesibilidad', async () => {
+  it('FR-016: no tiene violaciones de accesibilidad', async () => {
     const { container } = render(<TextField label="Correo" value="" onChange={() => {}} />);
     await expectNoA11yViolations(container);
   });

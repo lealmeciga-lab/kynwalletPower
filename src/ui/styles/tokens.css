@@ -1,26 +1,35 @@
-/* Tokens del diseño de Figma (archivo f7uDsv8sh6ZOtK2OitTqtg, nodo 2:2). Fuente única de estilo. */
+/*
+ * Tokens de diseño. Fuente única de estilo.
+ * - Colores de marca y superficie: medidos en specs/002-login-billetera-virtual/modelobilletera.png
+ *   (research.md R2 y R7).
+ * - Texto, radios y alturas: variables de Figma (archivo f7uDsv8sh6Z0tK20itTqtg, nodo 2:2).
+ */
 :root {
-  /* Variables de Figma */
+  /* Paleta base (Figma y referencia visual) */
   --neutral-0: #ffffff;
   --neutral-300: #d7d9e6;
   --neutral-400: #a9abc2;
   --neutral-500: #8a8ca8;
   --neutral-700: #3d3f5c;
   --neutral-900: #16182c;
-  --brand-500: #ff6b3d;
+  --brand-500: #ff710f; /* naranja del botón en la imagen; no cumple AA con texto blanco */
   --brand-600: #ef5226;
 
-  /* Tokens accesibles derivados (research.md R3, WCAG 2.1 AA). Pendientes de aprobación de diseño. */
-  --brand-700: #d04721; /* 4.56:1 sobre blanco: botón principal y enlaces */
-  --brand-800: #b03b1b; /* hover del botón principal */
-  --neutral-600: #73748b; /* 4.57:1: textos secundarios y placeholder */
-  --neutral-border: #92949c; /* 3.03:1: bordes de controles */
+  --surface: #fafaf7; /* fondo del panel de formulario, campos y botones sociales */
+
+  /* Tokens accesibles derivados para el fondo --surface (research.md R7, WCAG 2.1 AA).
+     Pendientes de aprobación de diseño (Constitución 8.6, tasks.md T041). */
+  --brand-700: #c24f00; /* 4.55:1 sobre --surface: botón principal y enlaces */
+  --brand-800: #ac4600; /* 5.53:1: hover del botón principal */
+  --neutral-600: #707187; /* 4.56:1: textos secundarios y placeholder */
+  --neutral-border: #8f919a; /* 3.00:1: bordes de controles */
   --danger-600: #c62828; /* 5.62:1: mensajes de error */
   --danger-50: #fdecea;
   --neutral-50: #f4f5f9;
 
   /* Valores sin variable en Figma */
-  --brand-gradient: linear-gradient(121.19deg, #ff8a65 0%, #ef5226 70.71%);
+  /* Inicio oscurecido de #ff8c48 (imagen) a #f5732f: titular ≥ 3:1 (research.md R7, tasks.md T036). */
+  --brand-gradient: linear-gradient(121.19deg, #f5732f 0%, #fe4e01 70.71%);
   --card-surface: rgba(255, 255, 255, 0.16);
   --card-border: rgba(255, 255, 255, 0.35);
   --card-chip: rgba(255, 217, 128, 0.9);

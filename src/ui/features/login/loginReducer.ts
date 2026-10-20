@@ -12,7 +12,7 @@ export type LoginState = {
   authError: 'invalid-credentials' | 'unavailable' | null;
   welcomeName: string | null;
   rememberMe: boolean;
-  notice: string | null;
+  notice: { message: string; id: number } | null;
 };
 
 export type LoginAction =
@@ -20,6 +20,7 @@ export type LoginAction =
   | { type: 'blur'; field: Field }
   | { type: 'toggleRemember'; checked: boolean }
   | { type: 'showNotice'; message: string }
+  | { type: 'dismissNotice'; id: number }
   | { type: 'submit' }
   | { type: 'result'; result: AuthResult }
   | { type: 'logout' };
@@ -64,22 +65,29 @@ export function loginReducer(state: LoginState, action: LoginAction): LoginState
     }
 
     case 'toggleRemember':
-      // FR-017: solo visual, no se persiste.
+      // FR-018: solo visual, no se persiste.
       return { ...state, rememberMe: action.checked };
 
     case 'showNotice':
-      return { ...state, notice: action.message };
+      // FR-017: un aviso nuevo reemplaza al anterior y reinicia su tiempo (id nuevo).
+      return { ...state, notice: { message: action.message, id: (state.notice?.id ?? 0) + 1 } };
+
+    case 'dismissNotice':
+      // Un temporizador viejo nunca cierra un aviso más nuevo.
+      return state.notice?.id === action.id ? { ...state, notice: null } : state;
 
     case 'submit': {
       if (state.status === 'submitting') return state;
       const touched = { email: true, password: true };
       const fieldErrors = visibleErrors(state.values, touched);
-      // FR-006: no se autentica mientras existan errores de validación.
+      // FR-006: con errores de validación no se compara contra las cuentas ni se pasa a submitting.
       const status = Object.keys(fieldErrors).length > 0 ? 'editing' : 'submitting';
       return { ...state, status, touched, fieldErrors, authError: null, notice: null };
     }
 
     case 'result':
+      // FR-006: los errores de validación ya se mostraron en `submit`.
+      if (action.result.kind === 'validation-error') return state;
       if (action.result.kind === 'success') {
         return { ...state, status: 'welcome', welcomeName: action.result.displayName };
       }
